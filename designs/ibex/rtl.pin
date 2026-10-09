@@ -1,0 +1,49 @@
+# Pinned Ibex RTL revision for this repository.
+#
+#   repository : https://github.com/lowRISC/ibex
+#   commit     : 8b8ee086aef72e0833b7f0493d9d33f1e4d3c8e2
+#   submodule  : designs/ibex/ibex
+#
+# This commit is the value recorded in the gitlink, so `git submodule update
+# --init` reproduces it exactly. This file exists so the pin is greppable and
+# so the run manifest can assert that the checkout matches it without needing
+# a git subprocess: flow/run.py reads it and compares against `git -C
+# designs/ibex/ibex rev-parse HEAD`.
+#
+# Do not bump this casually. Every episode records design.rtl_commit, and a
+# bump changes every metric the extractor reports -- which means every episode
+# taken before the bump describes a different design from every one after it.
+# A bump is a fork in the dataset, not a version upgrade.
+
+8b8ee086aef72e0833b7f0493d9d33f1e4d3c8e2
+
+# --------------------------------------------------------------------------
+# How the VERILOG_FILES list in config.yaml was derived
+# --------------------------------------------------------------------------
+#
+# Ibex's own synthesis flow (syn/) drives Yosys through TCL and relies on a
+# FuseSoC-generated file list, which this repository does not use. The list in
+# config.yaml was produced instead by resolving the transitive dependency
+# closure of `ibex_top` over the checkout:
+#
+#   1. index every `module` / `package` / `interface` declaration in the tree,
+#      skipping the directories that never contribute synthesis sources
+#      (ci, doc, dv, examples, formal, lint, shared, sw, syn);
+#   2. walk outward from `ibex_top`, following `import pkg::*`, `include "..."`
+#      and whole-word references to other declared identifiers;
+#   3. drop files that are only ever `include`d, and record their directories
+#      as VERILOG_INCLUDE_DIRS instead;
+#   4. drop modules that nothing instantiates -- a package that merely *names*
+#      a module (prim_secded_pkg does) would otherwise drag in the whole
+#      library;
+#   5. order the survivors: packages first, then modules, `ibex_top` last.
+#
+# Two `include`d headers are reachable from synthesised code:
+#   prim_assert.sv        (vendor/lowrisc_ip/ip/prim/rtl)      -- unconditional
+#   dv_fcov_macros.svh    (vendor/lowrisc_ip/dv/sv/dv_utils)   -- unconditional
+# formal_tb_frag.svh is included only behind `ifdef FORMAL and is
+# intentionally left off the include path.
+#
+# The list is committed rather than generated at run time on purpose: a
+# generated list is a moving target, and this repository is about
+# reproducibility. If the submodule is bumped, re-derive it and diff.

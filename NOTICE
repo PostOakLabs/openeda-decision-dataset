@@ -1,0 +1,34 @@
+NOTICE for openeda-decision-dataset
+Copyright 2026 Post Oak Labs
+
+This repository holds a LibreLane flow harness, metric extractors, episode
+tooling and a corpus of engineering-decision episode documents. Licensing:
+
+- The **code** (flow/, extractors/, tools/, tests/, designs/, build and CI
+  files) is licensed under Apache-2.0. See LICENSE.
+
+- The **data corpus** (the episode documents the tooling validates and exports;
+  e.g. episodes/ and any exported dataset) is licensed under CC BY 4.0, per the
+  licensing decision of 2026-09-02. The code license (Apache-2.0) and the data
+  license (CC BY 4.0) are distinct: a dataset this repository emits to publish
+  is CC BY 4.0 even though the emitting code is Apache-2.0.
+
+Third-party attribution
+-----------------------
+- The flow infrastructure is LibreLane (https://github.com/librelane/librelane),
+  Apache-2.0, (c) the FOSSi Foundation, the successor to OpenLane 2. The pinned
+  environment is the LibreLane 3.0.11 Nix environment; it is resolved by
+  flake.nix, not vendored here.
+- `designs/ibex/constraints/ibex.sdc` is a DERIVATIVE of LibreLane's
+  `scripts/base.sdc` (Apache-2.0, (c) the FOSSi Foundation); the derivation and
+  the significant changes are recorded at the top of that file.
+- The `designs/ibex/ibex` submodule is lowRISC Ibex (the RTL is not committed/
+  vendored; the submodule carries its own license). Ibex RTL is pulled by the
+  flow, not redistributed by this repository.
+- The Python runtime dependency edi-schema is installed by git tag
+  (PostOakLabs/engineering-decision-schema), Apache-2.0; it is resolved by the
+  build system, not vendored. `jsonschema` (MIT-style) and `pytest`/`ruff` (dev) are likewise
+  resolved, not vendored.
+
+No NOTICE from an upstream project is reproduced here because none of the
+above ships one that applies to this repository's redistribution.

@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: timing-clk-40mhz
+# Aims to provoke: FAIL_TIMING
+#
+# Single variable changed from designs/ibex/config.yaml:
+#   CLOCK_PERIOD  100 ns -> 25 ns   (10 MHz -> 40 MHz)
+#
+# Expected shape: setup WNS goes negative after CTS and stays there through
+# the post-CTS and post-GRT resizer passes. The question an episode about this
+# run answers is which repair the resizer already tried, and what was left.
+#
+# Note that the constraints file also reads CLOCK_PERIOD: input and output
+# delays are a percentage of it (IO_DELAY_CONSTRAINT), so they tighten with the
+# clock. That is intended -- a clock constrained in isolation, with the I/O
+# budget left at the relaxed baseline's, is not the design problem anyone
+# actually has.
+
+CLOCK_PERIOD: 25

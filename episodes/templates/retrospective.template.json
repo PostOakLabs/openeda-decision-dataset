@@ -1,0 +1,43 @@
+{
+  "$schema": "https://postoaklabs.github.io/engineering-decision-schema/episode.schema.json",
+  "episode_id": "EP-TEMPLATE-000",
+  "provenance": "retrospective",
+  "design": {
+    "name": "TODO(expert): design name",
+    "pdk": "TODO(expert): process node / PDK"
+  },
+  "prior_state": {
+    "stage": "TODO(expert): which flow stage was this reading taken at?",
+    "metrics": {}
+  },
+  "post_state": {
+    "stage": "TODO(expert): which flow stage was this reading taken at?",
+    "metrics": {}
+  },
+  "observation": {
+    "metric": "TODO(expert): metric name with its unit, e.g. wns_ns",
+    "value": "TODO(expert): what was observed",
+    "target": "TODO(expert): what the design was aiming for",
+    "severity": "degrading"
+  },
+  "hypothesis": "TODO(expert): your causal reading of the observation",
+  "candidates_considered": [
+    {
+      "intervention": "TODO(expert): the intervention you took",
+      "rejected_because": null
+    },
+    {
+      "intervention": "TODO(expert): an intervention you considered and rejected",
+      "rejected_because": "TODO(expert): why you rejected it"
+    }
+  ],
+  "chosen_intervention": {
+    "parameter": "TODO(expert): the knob you turned, e.g. FP_CORE_UTIL",
+    "before": "TODO(expert): value before",
+    "after": "TODO(expert): value after"
+  },
+  "expert_assessment": "inconclusive",
+  "rationale": "TODO(expert): why this intervention over the others",
+  "confidence": 0.0,
+  "failure_class": "FAIL_FLOW"
+}

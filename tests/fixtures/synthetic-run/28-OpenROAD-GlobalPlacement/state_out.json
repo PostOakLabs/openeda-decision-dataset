@@ -1,0 +1,10 @@
+{
+  "metrics": {
+    "design__instance__count": 10000,
+    "design__instance__area": 50000.0,
+    "design__core__area": 250000.0,
+    "design__die__area": 300000.0,
+    "design__instance__utilization": 0.2,
+    "design__instance__displacement__total": 1000.0
+  }
+}

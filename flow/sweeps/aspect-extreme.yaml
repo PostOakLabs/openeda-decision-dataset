@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: aspect-extreme
+# Aims to provoke: FAIL_CONGESTION (directional) / FAIL_ROUTER
+#
+# Single variable changed from designs/ibex/config.yaml:
+#   FP_ASPECT_RATIO  1 -> 4.0     (height / width)
+#
+# Expected shape: a tall, narrow floorplan. The routing resource per horizontal
+# track drops and the vertical distance a signal has to travel grows, so the
+# failure is *directional* rather than uniform -- which is what makes it worth
+# a separate episode from the two FP_CORE_UTIL sweeps. Same metric (overflow),
+# different cause, different fix.
+#
+# Utilisation is unchanged at 40%, so any congestion here is attributable to
+# the shape of the floorplan and not to a denser core.
+
+FP_ASPECT_RATIO: 4.0

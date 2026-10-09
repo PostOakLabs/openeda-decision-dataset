@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: timing-clk-80mhz
+# Aims to provoke: FAIL_TIMING (hard)
+#
+# Single variable changed from designs/ibex/config.yaml:
+#   CLOCK_PERIOD  100 ns -> 12.5 ns   (10 MHz -> 80 MHz)
+#
+# Expected shape: setup timing that cannot be closed by the resizer at all --
+# large negative WNS and TNS, and a violation count that does not fall between
+# the post-CTS and post-GRT passes. This is the severe end of the timing pair.
+#
+# 80 MHz for this core on sky130A is aggressive; the point is not to find a
+# frequency that works but to produce a run where the obvious interventions
+# (upsize, buffer, restructure) have all been tried by the tool and none
+# sufficed. That is the situation where expert judgment, not another tool
+# pass, decides what happens next.
+
+CLOCK_PERIOD: 12.5

@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: congestion-util-75
+# Aims to provoke: FAIL_CONGESTION
+#
+# Single variable changed from designs/ibex/config.yaml:
+#   FP_CORE_UTIL  40 -> 75
+#
+# Expected shape: global routing reports a nonzero overflow that routing
+# detail cannot clear, and/or detailed routing iterates to its limit. At 75%
+# the failure is expected to be *partial* -- measurable degradation with a
+# nonzero overflow, rather than a hard abort. That is the useful end of the
+# range: a run that dies before producing metrics teaches nobody anything.
+#
+# Not a grid. This file is one named configuration, not one point in a sweep
+# campaign; the spec excludes campaigns deliberately.
+
+FP_CORE_UTIL: 75

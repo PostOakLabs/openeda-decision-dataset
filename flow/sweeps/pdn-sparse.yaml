@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: pdn-sparse
+# Aims to provoke: FAIL_IR_DROP
+#
+# Physical variable changed from designs/ibex/config.yaml:
+#   power strap density, 153.6/153.18 um -> 400 um  (about 2.6x sparser)
+#
+# Expected shape: fewer, further-apart straps raise the worst-case IR drop
+# across the die. LibreLane reports it as `ir__drop__worst`, which the
+# extractor maps to `ir_drop_worst_v`.
+#
+# Why this file sets two LibreLane variables for one physical variable
+# -----------------------------------------------------------------
+# A power grid is two-dimensional. Moving only PDN_VPITCH leaves the
+# horizontal straps at PDK density, which is not a sparse grid -- it is an
+# anisotropic one, and it is a different experiment. Strap density is one
+# variable that happens to have two axes, so both pitches move together and
+# by the same factor.
+#
+# tests/test_runner.py encodes this as an explicit exception
+# (COUPLED_SWEEPS) rather than as a relaxed "at most two variables" rule:
+# adding a new multi-key sweep means deliberately editing that allowlist.
+#
+# Why the baseline does not set either variable
+# ---------------------------------------------
+# The baseline deliberately inherits the sky130 PDK's PDN geometry, so that a
+# default run is a normal run. The PDK values this sweep perturbs are:
+#
+#   PDN_VPITCH  153.6    um
+#   PDN_HPITCH  153.18   um
+#
+# Source: sky130/librelane/config.tcl in open_pdks, which is what volare
+# builds libs.tech/librelane from. LibreLane 3.0.11's own PDK-migration test
+# (test/config/test_pdk_migration.py) carries the same two numbers as the
+# deprecated FP_PDN_VPITCH / FP_PDN_HPITCH values, which corroborates them.
+#
+# These are read at run time from the PDK revision pinned in pdk/sky130.pin,
+# not from this comment. If that pin moves, confirm the two numbers against
+# the installed PDK before trusting the "2.6x" above -- state it in the
+# episode as a measured ratio, not as a fact inherited from a comment.
+#
+# Interpreting the result
+# -----------------------
+# A sparse grid may complete the flow and simply report a bad number:
+# whether a large drop is an error is a PDK/flow setting, not something this
+# sweep changes. Check `ir_drop_worst_v`, not just the exit code.
+#
+# RUN_IRDROP_REPORT defaults to true in the Classic flow, so
+# OpenROAD.IRDropReport runs and the metric is present without extra config.
+
+PDN_VPITCH: 400
+PDN_HPITCH: 400

@@ -1,0 +1,356 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "sc": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "edi": "https://postoaklabs.github.io/engineering-decision-schema/",
+    "dct": "http://purl.org/dc/terms/",
+    "annotation": "cr:annotation",
+    "equivalentProperty": "cr:equivalentProperty",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "data_extract": {
+      "@id": "cr:dataExtract",
+      "@type": "@json"
+    }
+  },
+  "@type": "Dataset",
+  "@id": "https://github.com/PostOakLabs/openeda-decision-dataset",
+  "name": "openeda-decisions-episodes",
+  "description": "Engineering-decision episodes recorded against LibreLane physical-design runs: the state before an intervention, the observation that triggered it, the candidates considered and rejected, the chosen intervention, and the expert's assessment.",
+  "url": "https://github.com/PostOakLabs/openeda-decision-dataset",
+  "license": "CC-BY-4.0",
+  "version": "1.1",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "keywords": [
+    "engineering-decisions",
+    "physical-design",
+    "zero-knowledge",
+    "provenance",
+    "librelane",
+    "ibex",
+    "sky130"
+  ],
+  "distribution": [
+    {
+      "@type": "https://schema.org/FileObject",
+      "@id": "episodes-dist",
+      "name": "episodes",
+      "encodingFormat": "application/json",
+      "contentUrl": "https://github.com/PostOakLabs/openeda-decision-dataset/tree/main/episodes",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "episodes",
+      "name": "episodes",
+      "description": "One row per admitted engineering-decision episode.",
+      "data": {
+        "encodingFormat": "application/json",
+        "includes": []
+      },
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/episode_id",
+          "name": "episode_id",
+          "description": "Stable unique episode id (EP-<domain>-<nnn>).",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.episode_id"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/provenance",
+          "name": "provenance",
+          "description": "retrospective | reproduced | synthetic-fixture.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.provenance"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/design_name",
+          "name": "design_name",
+          "description": "Design under decision.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.design/name"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/design_pdk",
+          "name": "design_pdk",
+          "description": "Process design kit / node.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.design/pdk"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/design_rtl_commit",
+          "name": "design_rtl_commit",
+          "description": "Pinned RTL commit (reproduced episodes).",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.design/rtl_commit"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/design_pdk_commit",
+          "name": "design_pdk_commit",
+          "description": "Pinned PDK commit (reproduced episodes).",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.design/pdk_commit"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/failure_class",
+          "name": "failure_class",
+          "description": "FAIL_* / SDC_BUDGET class of the failure.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.failure_class"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/observation_metric",
+          "name": "observation_metric",
+          "description": "Metric name with unit suffix, e.g. wns_ns.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.observation/metric"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/observation_value",
+          "name": "observation_value",
+          "description": "Observed value (number or string).",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.observation/value"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/observation_target",
+          "name": "observation_target",
+          "description": "Target value.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.observation/target"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/observation_severity",
+          "name": "observation_severity",
+          "description": "blocking | degrading | cosmetic.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.observation/severity"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/hypothesis",
+          "name": "hypothesis",
+          "description": "Expert causal reading of the observation.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.hypothesis"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/expert_assessment",
+          "name": "expert_assessment",
+          "description": "preferred | acceptable | regretted | inconclusive.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.expert_assessment"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/rationale",
+          "name": "rationale",
+          "description": "Why the chosen intervention beat the others.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.rationale"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/confidence",
+          "name": "confidence",
+          "description": "Expert confidence in [0, 1].",
+          "dataType": "Number",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.confidence"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/chosen_parameter",
+          "name": "chosen_parameter",
+          "description": "Parameter/knob changed by the chosen intervention.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.chosen_intervention/parameter"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/chosen_before",
+          "name": "chosen_before",
+          "description": "Parameter value before.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.chosen_intervention/before"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/chosen_after",
+          "name": "chosen_after",
+          "description": "Parameter value after.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.chosen_intervention/after"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/prior_stage",
+          "name": "prior_stage",
+          "description": "Flow stage before the intervention.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.prior_state/stage"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/post_stage",
+          "name": "post_stage",
+          "description": "Flow stage after the intervention.",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.post_state/stage"
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/run_manifest_ref",
+          "name": "run_manifest_ref",
+          "description": "Reference to the backing run-manifest (reproduced episodes).",
+          "dataType": "Text",
+          "source": {
+            "@type": "cr:JsonPath",
+            "container": "cr:Episode",
+            "jsonPath": "$.run_manifest_ref"
+          }
+        }
+      ],
+      "enumeration": [],
+      "annotation": [
+        {
+          "@type": "cr:Field",
+          "@id": "episodes/provenance_mapping",
+          "name": "provenance_mapping",
+          "description": "EDI episode `provenance` -> W3C PROV-O term, per W1.3. synthetic-fixture is non-evidential.",
+          "equivalentProperty": "prov:derivation",
+          "subField": [
+            {
+              "@type": "cr:Field",
+              "@id": "episodes/provenance_mapping/retrospective",
+              "name": "retrospective",
+              "description": "episode provenance value maps to PROV-O term prov:wasDerivedFrom",
+              "dataType": "prov:Entity",
+              "value": {
+                "term": "prov:wasDerivedFrom"
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "episodes/provenance_mapping/reproduced",
+              "name": "reproduced",
+              "description": "episode provenance value maps to PROV-O term prov:wasGeneratedBy",
+              "dataType": "prov:Entity",
+              "value": {
+                "term": "prov:wasGeneratedBy"
+              }
+            },
+            {
+              "@type": "cr:Field",
+              "@id": "episodes/provenance_mapping/synthetic-fixture",
+              "name": "synthetic-fixture",
+              "description": "episode provenance value maps to PROV-O term edi:non_evidential (marked non-evidential: schema-valid validator food, not data)",
+              "dataType": "prov:Entity",
+              "value": {
+                "term": "edi:non_evidential"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

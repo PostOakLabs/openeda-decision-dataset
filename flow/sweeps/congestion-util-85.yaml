@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Sweep: congestion-util-85
+# Aims to provoke: FAIL_CONGESTION (hard)
+#
+# Single variable changed from designs/ibex/config.yaml:
+#   FP_CORE_UTIL  40 -> 85
+#
+# Expected shape: the same failure mode as congestion-util-75, further along.
+# Where 75 should degrade, 85 should stop -- global routing overflow that
+# cannot be resolved within GRT_OVERFLOW_ITERS, or a detailed-routing
+# iteration limit. This is the pair's severe end, and the point of having both
+# is that an episode written about one can be contrasted with an episode
+# written about the other: same variable, different severity, different
+# intervention.
+#
+# GRT_ALLOW_CONGESTION stays on (it is set in the baseline), so an overflowing
+# global route is recorded as a measurement rather than aborting the run.
+
+FP_CORE_UTIL: 85

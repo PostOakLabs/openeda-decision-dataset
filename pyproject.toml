@@ -1,0 +1,93 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openeda-decisions"
+version = "0.1.0"
+description = "LibreLane flow harness, metric extractors and episode tooling for reproducible physical-design decisions"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "PostOakLabs" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+]
+
+# edi-schema is consumed by git tag. Pin the tag and bump it deliberately.
+#
+# v0.5.0 carries edi_schema.croissant (build_croissant) and
+# edi_schema.check_episodes, which tools/gen_dataset_meta.py imports.
+dependencies = [
+  "edi-schema @ git+https://github.com/PostOakLabs/engineering-decision-schema@v0.5.0",
+  "pyyaml>=6.0",
+]
+
+# Required because of the direct reference above. Without it, hatchling
+# refuses to build a wheel at all ("cannot be a direct reference").
+[tool.hatch.metadata]
+allow-direct-references = true
+
+# ruff is pinned exactly, not floated. isort's import-block behaviour changed
+# between 0.15 and 0.16 (0.16 wants a blank line between the third-party and
+# first-party blocks), so an unpinned runner drifts ahead of a dev machine and
+# turns `ruff check` into a gate that passes locally and fails in CI. Keep this
+# in lockstep with RUFF_VERSION in .github/workflows/ci.yaml -- bump both.
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "ruff==0.16.5"]
+
+[project.urls]
+Repository = "https://github.com/PostOakLabs/openeda-decision-dataset"
+
+[project.scripts]
+openeda-run = "flow.run:main"
+openeda-extract = "extractors.metrics_from_state:main"
+openeda-new-episode = "tools.new_episode:main"
+openeda-check-episodes = "tools.check_episodes:main"
+openeda-gen-dataset-meta = "tools.gen_dataset_meta:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["flow", "extractors", "tools"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "flow",
+  "extractors",
+  "tools",
+  "designs",
+  "episodes",
+  "tests",
+  "docs",
+  "pdk",
+  "flake.nix",
+  "README.md",
+  "LICENSE",
+  "NOTICE",
+  "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = [".", "tests"]
+# The Ibex submodule is vendored third-party RTL plus its own Python tooling.
+# It is not ours to lint, and it is 10k violations deep.
+extend-exclude = ["designs/ibex/ibex", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]

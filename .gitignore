@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+build/
+dist/
+*.egg-info/
+
+# Virtualenvs (project-scoped; stay inside the checkout)
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- EDA artifacts: large, regenerable, never committed ---
+
+# PDK installed by ciel into the checkout
+.ciel/
+
+# LibreLane run directories (metrics.json IS committed, selectively)
+runs/
+runs.*/
+
+# LibreLane intermediate objects
+tmp/
+*.log
+
+# ...except the synthetic step logs under tests/fixtures. Those are fixture
+# data, not run output: the overflow scrape reads them, and a fixture that
+# only exists on one checkout makes the test suite pass locally and fail in
+# CI. Narrowly scoped so real run logs stay ignored.
+!tests/fixtures/**/*.log
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Nix
+.direnv/
+result
+result-*

@@ -1,0 +1,6 @@
+{
+  "metrics": {
+    "design__lvs_error__count": 5,
+    "design__instance__utilization": 0.85
+  }
+}

@@ -1,0 +1,166 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Two jobs, with a deliberate asymmetry between them.
+#
+#   gate  -- runs on every push and pull request. Linting, tests, and the
+#            episode check. Minutes, no EDA tools, no PDK.
+#
+#   flow  -- runs only on workflow_dispatch. A full LibreLane run of the Ibex
+#            baseline or one named sweep, inside the pinned Nix environment.
+#            Hours, a multi-gigabyte PDK, and a real chance of failing for
+#            reasons that have nothing to do with the change under review.
+#
+# Keeping the heavy run off the pull-request gate is not laziness. A gate that
+# fails for unrelated reasons is a gate people learn to ignore, and a six-hour
+# gate on every commit is a gate nobody waits for.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      design:
+        description: Design directory under designs/
+        required: true
+        default: ibex
+        type: string
+      sweep:
+        description: Sweep to apply (leave empty for the baseline run)
+        required: false
+        default: ""
+        type: string
+      tag:
+        description: Run tag / run directory name
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # A queued pull-request run is worthless once a new commit lands. A
+  # dispatched flow run is not: it is hours of work someone asked for.
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+permissions:
+  contents: read
+
+# Pinned so the runner and a dev machine lint with byte-identical rules; keep in
+# lockstep with the ruff pin in pyproject.toml [project.optional-dependencies].
+env:
+  RUFF_VERSION: "0.16.5"
+
+jobs:
+  gate:
+    name: Lint, tests, episode check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      # Belt and braces with the pyproject pin: an unpinned `.[dev]` install can
+      # still resolve a different ruff, so force the exact version and refuse to
+      # lint under anything else.
+      - name: Pin the lint toolchain
+        run: pip install "ruff==${{ env.RUFF_VERSION }}"
+
+      - name: Assert the pinned ruff version
+        run: |
+          got="$(ruff --version | awk '{print $2}')"
+          if [ "$got" != "${RUFF_VERSION}" ]; then
+            echo "::error::expected ruff ${RUFF_VERSION}, runner has ${got}"
+            exit 1
+          fi
+          echo "linting with ruff ${got}"
+
+      - name: Formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tests
+        run: pytest -q
+
+      # --allow-draft while the seeds are skeletons. Drop the flag the moment
+      # the last TODO marker is filled in: it then becomes the assertion that
+      # no draft was left behind.
+      - name: Episode check
+        run: python tools/check_episodes.py --allow-draft
+
+      # Same freshness pattern as the episode check: the committed dataset
+      # metadata has to match what episodes/ actually contains, or the repo
+      # ships a croissant.json that advertises a corpus it does not have.
+      # Regenerate with: python tools/gen_dataset_meta.py
+      - name: Dataset metadata freshness
+        run: python tools/gen_dataset_meta.py --check
+
+  flow:
+    name: LibreLane run (${{ inputs.design }}${{ inputs.sweep && format(' / {0}', inputs.sweep) || '' }})
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      # The Ibex RTL is a submodule, so it has to be fetched explicitly.
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # The FOSSi binary cache is what turns a multi-hour source build of the
+      # EDA toolchain into a download. Without it this job will time out.
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            extra-substituters = https://nix-cache.fossi-foundation.org
+            extra-trusted-public-keys = nix-cache.fossi-foundation.org:3+K59iFwXqKsL7BNu6Guy0v+uTlwsxYQxjspXzqLYQs=
+            extra-experimental-features = nix-command flakes
+
+      - name: Show the pinned environment
+        run: nix develop --command librelane --version
+
+      # nix develop generates flake.lock on first use. flow/run.py hashes it
+      # into every run manifest, so it has to exist before the run, not after.
+      - name: Resolve the flake lock
+        run: nix develop --command true
+
+      - name: Run the flow
+        env:
+          DESIGN: ${{ inputs.design }}
+          SWEEP: ${{ inputs.sweep }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          # Pass the dispatch inputs as ARGV (positional parameters), never as
+          # spliced source text. `design`/`sweep`/`tag` are free-text (type:
+          # string), so interpolating `'"$DESIGN"'` into a `bash -c '...'`
+          # single-quoted script lets the OUTER shell expand it and the INNER
+          # shell re-parse it as source -- a shell-injection surface (CI-1).
+          # `bash -c '<script>' bash "$DESIGN" ...` sets $1/$2/$3 (after the
+          # `bash` $0 name), so the values are positional, never re-parsed.
+          nix develop --command bash -c '
+            set -euo pipefail
+            python -m venv .ci-venv
+            . .ci-venv/bin/activate
+            pip install --quiet -e ".[dev]"
+            args=(--design "$1" --pdk-root "$PWD/.ciel")
+            [ -n "$2" ] && args+=(--sweep "$2")
+            [ -n "$3" ] && args+=(--tag "$3")
+            python flow/run.py "${args[@]}"
+          ' bash "$DESIGN" "$SWEEP" "$TAG"
+
+      - name: Upload the run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-${{ inputs.design }}-${{ inputs.sweep || 'baseline' }}
+          path: designs/${{ inputs.design }}/runs/
+          if-no-files-found: ignore
+          retention-days: 30

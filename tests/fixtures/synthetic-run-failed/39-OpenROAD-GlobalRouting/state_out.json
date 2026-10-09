@@ -1,0 +1,6 @@
+{
+  "metrics": {
+    "design__instance__utilization": 0.85,
+    "route__wirelength__estimated": 900000.0
+  }
+}

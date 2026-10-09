@@ -1,0 +1,9 @@
+{
+  "metrics": {
+    "design__instance__count": 10600,
+    "design__instance__utilization": 0.22,
+    "timing__setup__wns": -0.75,
+    "timing__setup__tns": -40.0,
+    "timing__setup_vio__count": 9
+  }
+}

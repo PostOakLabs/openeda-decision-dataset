@@ -1,0 +1,8 @@
+{
+  "metrics": {
+    "design__instance__count": 10600,
+    "design__instance__utilization": 0.22,
+    "route__wirelength__estimated": 420000.0,
+    "magic__drc_error__count": 7
+  }
+}

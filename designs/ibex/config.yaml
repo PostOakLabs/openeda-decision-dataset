@@ -1,0 +1,137 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# LibreLane configuration -- Ibex on sky130A.
+#
+# The flow is LibreLane. The place-and-route engine inside it is OpenROAD.
+#
+# Everything in this file is deliberately boring. It is a BASELINE: one
+# relaxed run that should complete cleanly, so that every sweep under
+# flow/sweeps/ has something to be a single-variable perturbation OF.
+#
+# The RTL is a git submodule pinned in designs/ibex/ibex; see rtl.pin for the
+# exact commit and for how the file list below was derived. Paths are relative
+# to this file's directory (LibreLane resolves them against DESIGN_DIR).
+#
+# Units: CLOCK_PERIOD is nanoseconds. FP_CORE_UTIL is a percentage.
+
+DESIGN_NAME: ibex_top
+PDK: sky130A
+STD_CELL_LIBRARY: sky130_fd_sc_hd
+
+# --------------------------------------------------------------------------
+# Inputs
+# --------------------------------------------------------------------------
+
+# Ordered: SystemVerilog packages first (Yosys needs a package declared
+# before a file that imports it), then modules, then the top module last.
+VERILOG_FILES:
+  - dir::ibex/rtl/ibex_cheriot_pkg.sv
+  - dir::ibex/rtl/ibex_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_cipher_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_count_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_mubi_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_util_pkg.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_ram_1p_pkg.sv
+  - dir::ibex/rtl/ibex_alu.sv
+  - dir::ibex/rtl/ibex_branch_predict.sv
+  - dir::ibex/rtl/ibex_cheriot_ex.sv
+  - dir::ibex/rtl/ibex_compressed_decoder.sv
+  - dir::ibex/rtl/ibex_controller.sv
+  - dir::ibex/rtl/ibex_core.sv
+  - dir::ibex/rtl/ibex_counter.sv
+  - dir::ibex/rtl/ibex_cs_registers.sv
+  - dir::ibex/rtl/ibex_csr.sv
+  - dir::ibex/rtl/ibex_decoder.sv
+  - dir::ibex/rtl/ibex_dummy_instr.sv
+  - dir::ibex/rtl/ibex_ex_block.sv
+  - dir::ibex/rtl/ibex_fetch_fifo.sv
+  - dir::ibex/rtl/ibex_icache.sv
+  - dir::ibex/rtl/ibex_id_stage.sv
+  - dir::ibex/rtl/ibex_if_stage.sv
+  - dir::ibex/rtl/ibex_load_store_unit.sv
+  - dir::ibex/rtl/ibex_multdiv_fast.sv
+  - dir::ibex/rtl/ibex_multdiv_slow.sv
+  - dir::ibex/rtl/ibex_pmp.sv
+  - dir::ibex/rtl/ibex_prefetch_buffer.sv
+  - dir::ibex/rtl/ibex_register_file_ff.sv
+  - dir::ibex/rtl/ibex_register_file_fpga.sv
+  - dir::ibex/rtl/ibex_register_file_latch.sv
+  - dir::ibex/rtl/ibex_trvk.sv
+  - dir::ibex/rtl/ibex_wb_stage.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_count.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_fifo_sync.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_fifo_sync_cnt.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_lfsr.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_present.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_prince.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_ram_1p_adv.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_22_16_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_22_16_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_28_22_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_28_22_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_39_32_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_39_32_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_64_57_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_64_57_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_hamming_22_16_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_hamming_22_16_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_hamming_39_32_dec.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_secded_inv_hamming_39_32_enc.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl/prim_subst_perm.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_buf.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_clock_gating.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_clock_mux2.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_flop.sv
+  - dir::ibex/vendor/lowrisc_ip/ip/prim_generic/rtl/prim_ram_1p.sv
+  - dir::ibex/vendor/pulp_common_cells/rtl/stream_fork.sv
+  - dir::ibex/vendor/pulp_common_cells/rtl/stream_join_dynamic.sv
+  - dir::ibex/rtl/ibex_top.sv
+
+# `include search path. prim_assert.sv and dv_fcov_macros.svh are pulled in by
+# Ibex sources unconditionally; formal_tb_frag.svh is behind `ifdef FORMAL and
+# is deliberately not made reachable.
+VERILOG_INCLUDE_DIRS:
+  - dir::ibex/vendor/lowrisc_ip/ip/prim/rtl
+  - dir::ibex/vendor/lowrisc_ip/dv/sv/dv_utils
+
+# --------------------------------------------------------------------------
+# Timing
+# --------------------------------------------------------------------------
+
+CLOCK_PORT: clk_i
+CLOCK_PERIOD: 100
+
+PNR_SDC_FILE: dir::constraints/ibex.sdc
+SIGNOFF_SDC_FILE: dir::constraints/ibex.sdc
+
+# --------------------------------------------------------------------------
+# Floorplan
+# --------------------------------------------------------------------------
+
+FP_SIZING: relative
+FP_CORE_UTIL: 40
+FP_ASPECT_RATIO: 1
+
+# --------------------------------------------------------------------------
+# Flow behaviour
+# --------------------------------------------------------------------------
+
+# This repository exists to provoke and measure failures, not to ship silicon.
+# Congestion must therefore be reported as a metric rather than aborting the
+# run at global routing: a sweep that dies at GRT produces no metrics to write
+# an episode about. Timing and congestion problems are recorded; DRC and LVS
+# errors still stop the flow, because there is nothing downstream of them
+# worth measuring.
+GRT_ALLOW_CONGESTION: true
+
+# --------------------------------------------------------------------------
+# A note on overriding
+# --------------------------------------------------------------------------
+#
+# Every value above is at the top level on purpose, with no `pdk::` or `scl::`
+# conditional blocks. A sweep in flow/sweeps/ is a second configuration file
+# layered on top of this one, and a conditional block in the baseline is
+# evaluated per file -- which makes the precedence of a plain top-level
+# override in the sweep ambiguous. Keeping the baseline flat keeps every sweep
+# a genuinely single-variable change.
